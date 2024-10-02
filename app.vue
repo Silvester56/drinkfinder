@@ -1,6 +1,7 @@
 <template>
   <div>
     <Header />
+    <Question phrase="Salé ou sucré ?" :button-list="[{text: 'salé'}, {text: 'sucré'}]"/>
     <Footer />
   </div>
 </template>
@@ -8,6 +9,7 @@
 <script>
 
 import { Footer } from "./components/Footer.vue";
+import { Question } from "./components/Question.vue";
 import { Header } from "./components/Header.vue";
 
 </script>
