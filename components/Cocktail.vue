@@ -22,6 +22,11 @@ export default {
 
 .cocktail {
     height: calc(100vh - 200px);
+    padding: 0 1rem;
+}
+
+.cocktail .cocktail-name {
+    text-align: center;
 }
 
 </style>

@@ -170,13 +170,17 @@ body {
 }
 
 .cocktail-list {
-  padding: 0 1rem;
   display: flex;
-  gap: 1rem;
+  justify-content: center;
 }
 
 .cocktail-list .cocktail {
   flex: 1;
+  background-color: #e5e5f7;
+}
+
+.cocktail-list .cocktail:nth-child(even) {
+  background-color: #00dc82;
 }
 
 </style>
