@@ -1,28 +1,25 @@
 <template>
     <div class="question">
         <h3 class="question-title">{{ phrase }}</h3>
-        <button class="question-button" v-for="b in buttonList">{{ b.text }}</button>
+        <button @click="$emit('answer', b.tag)" class="question-button" v-for="b in buttonList">{{ b.text }}</button>
     </div>
 </template>
 
-<script setup>
-const props = defineProps({
-  phrase: {
-    type: String,
-    required: true,
-  },
-  buttonList: {
-    type: Array,
-    required: true,
+<script>
+
+export default {
+  props: ['phrase', 'buttonList'],
+  name: 'question',
+  methods: {
   }
-});
+}
 </script>
 
 <style>
 
 .question {
     width: 100%;
-    height: 50vh;
+    height: calc(100vh - 200px);
     display: flex;
     flex-wrap: wrap;
     justify-content: space-evenly;

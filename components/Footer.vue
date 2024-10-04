@@ -2,6 +2,14 @@
     <footer>2024 | Silvester56</footer>
 </template>
 
+<script>
+
+export default {
+    name: "Footer"
+}
+
+</script>
+
 <style>
 
 footer {
