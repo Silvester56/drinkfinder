@@ -2,6 +2,9 @@
   <div>
     <Header />
     <Question v-if="remainingQuestions.length > 0" :phrase="remainingQuestions[0].phrase" :button-list="remainingQuestions[0].buttonList" @answer="handleAnswer"/>
+    <div v-else class="cocktail-list">
+      <Cocktail v-for="c in remainingCocktails" :recipe="c"/>
+    </div>
     <Footer />
   </div>
 </template>
@@ -135,6 +138,16 @@ body {
   margin: 0;
   padding: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.cocktail-list {
+  padding: 0 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.cocktail-list .cocktail {
+  flex: 1;
 }
 
 </style>
