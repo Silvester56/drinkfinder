@@ -1,7 +1,7 @@
 <template>
   <div>
     <Header />
-    <Question v-if="remainingQuestions.length > 0" :phrase="remainingQuestions[0].phrase" :button-list="remainingQuestions[0].buttonList" @answer="handleAnswer"/>
+    <Question v-if="remainingCocktails.length !== cocktailsAtTheEnd" :phrase="remainingQuestions[0].phrase" :button-list="remainingQuestions[0].buttonList" @answer="handleAnswer"/>
     <div v-else class="cocktail-list">
       <Cocktail v-for="c in remainingCocktails" :recipe="c"/>
     </div>
@@ -60,10 +60,6 @@ let allQuestions = [
     buttonList: [{text: "Yes", tag: Tags.FEW_INGREDIENTS}, {text: "No", tag: Tags.MANY_INGREDIENTS}]
   },
   {
-    phrase: "Did you already eat?",
-    buttonList: [{text: "Yes", tag: Tags.STRONG}, {text: "No", tag: Tags.SOFT}]
-  },
-  {
     phrase: "Favorite spirit?",
     buttonList: buttonListFromTags([Tags.VODKA, Tags.GIN, Tags.TEQUILA])
   },
@@ -83,7 +79,7 @@ let allQuestions = [
     phrase: "Favorite country?",
     buttonList: buttonListFromTags([Tags.FRANCE, Tags.MEXICO, Tags.RUSSIA, Tags.UK])
   }
-].sort((a, b) => b.buttonList.length - a.buttonList.length + 0.5 - Math.random());
+].sort(() => 0.5 - Math.random());
 
 const tagsOnCondition = (condition, tagsIfConfition, tagsIfNotCondition) => {
   if (condition) {
@@ -94,7 +90,6 @@ const tagsOnCondition = (condition, tagsIfConfition, tagsIfNotCondition) => {
 
 let allCocktails = cocktails.map(cocktail => {
   let tmpString = cocktail.ingredients.reduce((acc, cur) => `${cur.ingredient}\n${acc}`, `${cocktail.name}\n${cocktail.method}\n`);
-  console.log(tmpString);
   if (cocktail.garnish) {
     tmpString = `${tmpString}\n${cocktail.garnish}`;
   }
@@ -115,6 +110,10 @@ let allCocktails = cocktails.map(cocktail => {
   return cocktail;
 });
 
+const score = (cocktail, tagList) => {
+  return cocktail.tags.reduce((acc, cur) => acc + (tagList.includes(cur) ? 1 : 0), 0);
+};
+
 export default {
   name: "default",
   components: {
@@ -126,26 +125,37 @@ export default {
     return {
       remainingQuestions: allQuestions,
       remainingCocktails: allCocktails,
+      currentTagList: [],
+      questionsLeft: 0,
+      cocktailsAtTheEnd: 0,
     }
   },
   methods: {
     handleAnswer(tag) {
+      this.questionsLeft--;
       this.remainingQuestions.splice(0, 1);
       if (!tag) {
         return;
       }
-      this.remainingCocktails = this.remainingCocktails.filter(cocktail => cocktail.tags.includes(tag));
+      this.currentTagList.push(tag);
+      this.remainingCocktails.sort((a, b) => score(b, this.currentTagList) - score(a, this.currentTagList));
+      this.remainingQuestions.sort(() => 0.5 - Math.random());
       this.printRemainingCocktails();
-      this.remainingQuestions.forEach(q => q.buttonList = q.buttonList.filter(b => this.remainingCocktails.some(c => c.tags.includes(b.tag))));
-      this.remainingQuestions = this.remainingQuestions.filter(q => q.buttonList.length >= 2);
-      this.remainingQuestions.sort((a, b) => b.buttonList.length - a.buttonList.length + 0.5 - Math.random());
+      if (this.questionsLeft === 0) {
+        this.remainingCocktails.splice(this.cocktailsAtTheEnd);
+      }
     },
     printRemainingCocktails() {
-      this.remainingCocktails.forEach(c => console.log(c.name, c.tags.join(", "), "\n"));
+      this.remainingCocktails.forEach((c, i) => {
+        if (i < 5) {
+          console.log(c.name, c.tags.join(", "), "\n")
+        }
+      });
     }
   },
   created() {
-    this.printRemainingCocktails();
+    this.questionsLeft = 2 + Math.floor(2 * Math.random());
+    this.cocktailsAtTheEnd = 1 + Math.floor(2 * Math.random());
   }
 }
 
