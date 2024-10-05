@@ -37,9 +37,11 @@ const Tags = Object.freeze({
   RUSSIA: enumValue("RUSSIA"),
   UK: enumValue("UK"),
   SALT: enumValue("SALT"),
-  NO_SALT: enumValue("NO_SALT"),
+  SUGAR: enumValue("SUGAR"),
   COFFEE: enumValue("COFFEE"),
-  NO_COFFEE: enumValue("NO_COFFEE"),
+  VANILLA: enumValue("VANILLA"),
+  LIME: enumValue("LIME"),
+  LEMON: enumValue("LEMON"),
 });
 
 const buttonListFromTags = (tags) => tags.map(t => {
@@ -48,12 +50,12 @@ const buttonListFromTags = (tags) => tags.map(t => {
 
 let allQuestions = [
   {
-    phrase: "Do you like salt?",
-    buttonList: [{text: "Yes", tag: Tags.SALT}, {text: "No", tag: Tags.NO_SALT}]
+    phrase: "Salt or sugar?",
+    buttonList: buttonListFromTags([Tags.SALT, Tags.SUGAR])
   },
   {
-    phrase: "Do you need an energy boost?",
-    buttonList: [{text: "Yes", tag: Tags.COFFEE}, {text: "No", tag: Tags.NO_COFFEE}]
+    phrase: "Coffee or vanilla?",
+    buttonList: buttonListFromTags([Tags.COFFEE, Tags.VANILLA])
   },
   {
     phrase: "Are you lazy?",
@@ -64,7 +66,7 @@ let allQuestions = [
     buttonList: buttonListFromTags([Tags.VODKA, Tags.GIN, Tags.TEQUILA])
   },
   {
-    phrase: "Favorite spirit?",
+    phrase: "Choose a spirit",
     buttonList: buttonListFromTags([Tags.COGNAC, Tags.CACHAÇA, Tags.RUM])
   },
   {
@@ -78,6 +80,10 @@ let allQuestions = [
   {
     phrase: "Favorite country?",
     buttonList: buttonListFromTags([Tags.FRANCE, Tags.MEXICO, Tags.RUSSIA, Tags.UK])
+  },
+  {
+    phrase: "Lime or lemon?",
+    buttonList: buttonListFromTags([Tags.LIME, Tags.LEMON])
   }
 ].sort(() => 0.5 - Math.random());
 
@@ -99,14 +105,18 @@ let allCocktails = cocktails.map(cocktail => {
     cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes(tag.toString()), [tag]));
   });
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.search(/\bGIN\b/) !== -1, [Tags.GIN, Tags.UK]));
+  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("LIME"), [Tags.LIME]));
+  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("LEMON"), [Tags.LEMON]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("RUM"), [Tags.RUM]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("TEQUILA"), [Tags.TEQUILA, Tags.MEXICO]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("VODKA"), [Tags.VODKA, Tags.RUSSIA]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("COGNAC"), [Tags.COGNAC, Tags.FRANCE]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("FRENCH"), [Tags.FRANCE]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(cocktail.ingredients.length <= 3, [Tags.FEW_INGREDIENTS], [Tags.MANY_INGREDIENTS]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("SALT"), [Tags.SALT], [Tags.NO_SALT]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("COFFEE") || tmpString.includes("ESPRESSO"), [Tags.COFFEE], [Tags.NO_COFFEE]));
+  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("SALT"), [Tags.SALT]));
+  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("SUGAR"), [Tags.SUGAR]));
+  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("COFFEE") || tmpString.includes("ESPRESSO"), [Tags.COFFEE]));
+  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("VANILLA"), [Tags.VANILLA]));
   return cocktail;
 });
 
@@ -154,7 +164,7 @@ export default {
     }
   },
   created() {
-    this.questionsLeft = 2 + Math.floor(2 * Math.random());
+    this.questionsLeft = 3 + Math.floor(2 * Math.random());
     this.cocktailsAtTheEnd = 1 + Math.floor(2 * Math.random());
   }
 }
