@@ -2,8 +2,10 @@
   <div>
     <Header />
     <Question v-if="remainingCocktails.length !== cocktailsAtTheEnd" :phrase="remainingQuestions[0].phrase" :button-list="remainingQuestions[0].buttonList" @answer="handleAnswer"/>
-    <div v-else class="cocktail-list">
-      <Cocktail v-for="c in remainingCocktails" :recipe="c"/>
+    <div v-else class="cocktail-preview-list">
+      <div v-for="c, i in remainingCocktails" :class="`cocktail-preview ${previewClasses[i]}`">
+        <h2>{{ c.name }}</h2>
+      </div>
     </div>
     <Footer />
   </div>
@@ -137,7 +139,8 @@ export default {
       remainingCocktails: allCocktails,
       currentTagList: [],
       questionsLeft: 0,
-      cocktailsAtTheEnd: 0,
+      cocktailsAtTheEnd: 3,
+      previewClasses: ["tomato", "lavender-web", "emerald", "jonquil", "air-force-blue"].sort(() => 0.5 - Math.random())
     }
   },
   methods: {
@@ -165,7 +168,6 @@ export default {
   },
   created() {
     this.questionsLeft = 3 + Math.floor(2 * Math.random());
-    this.cocktailsAtTheEnd = 1 + Math.floor(2 * Math.random());
   }
 }
 
@@ -173,24 +175,50 @@ export default {
 
 <style>
 
+
 body {
+  --tomato: #f55d3e;
+  --lavender-web: #e5e5f7;
+  --emerald: #00dc82;
+  --jonquil: #f7cb15;
+  --air-force-blue: #537d8d;
+  --inverted-tomato: #0aa2c1;
+  --inverted-lavender-web: #1a1a08;
+  --inverted-emerald: #ff237d;
+  --inverted-jonquil: #0834ea;
+  --inverted-air-force-blue: #ac8272;
   margin: 0;
   padding: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.cocktail-list {
+.cocktail-preview-list {
   display: flex;
   justify-content: center;
 }
 
-.cocktail-list .cocktail {
+.cocktail-preview-list .cocktail-preview {
   flex: 1;
-  background-color: #e5e5f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 200px);
+  cursor: pointer;
 }
 
-.cocktail-list .cocktail:nth-child(even) {
-  background-color: #00dc82;
+.cocktail-preview-list .cocktail-preview:hover {
+  color: #ffffff;
 }
+
+.cocktail-preview-list .cocktail-preview.tomato { background-color: var(--tomato) }
+.cocktail-preview-list .cocktail-preview.lavender-web { background-color: var(--lavender-web) }
+.cocktail-preview-list .cocktail-preview.emerald { background-color: var(--emerald) }
+.cocktail-preview-list .cocktail-preview.jonquil { background-color: var(--jonquil) }
+.cocktail-preview-list .cocktail-preview.air-force-blue { background-color: var(--air-force-blue) }
+.cocktail-preview-list .cocktail-preview.tomato:hover { background-color: var(--inverted-tomato) }
+.cocktail-preview-list .cocktail-preview.lavender-web:hover { background-color: var(--inverted-lavender-web) }
+.cocktail-preview-list .cocktail-preview.emerald:hover { background-color: var(--inverted-emerald) }
+.cocktail-preview-list .cocktail-preview.jonquil:hover { background-color: var(--inverted-jonquil) }
+.cocktail-preview-list .cocktail-preview.air-force-blue:hover { background-color: var(--inverted-air-force-blue) }
 
 </style>
