@@ -76,12 +76,9 @@ let allQuestions = [
     buttonList: [{text: "Yes", tag: Tags.FEW_INGREDIENTS}, {text: "No", tag: Tags.MANY_INGREDIENTS}]
   },
   {
-    phrase: "Favorite spirit?",
-    buttonList: buttonListFromTags([Tags.VODKA, Tags.GIN, Tags.TEQUILA])
-  },
-  {
+    dynamic: true,
     phrase: "Choose a spirit",
-    buttonList: buttonListFromTags([Tags.COGNAC, Tags.CACHAÇA, Tags.RUM])
+    buttonList: buttonListFromTags([Tags.VODKA, Tags.GIN, Tags.TEQUILA, Tags.COGNAC, Tags.CACHAÇA, Tags.RUM])
   },
   {
     phrase: "Champagne or Prosecco ?",
@@ -92,10 +89,12 @@ let allQuestions = [
     buttonList: buttonListFromTags([Tags.WHISKY, Tags.WHISKEY])
   },
   {
+    dynamic: true,
     phrase: "Favorite country?",
     buttonList: buttonListFromTags([Tags.FRANCE, Tags.MEXICO, Tags.RUSSIA, Tags.UK])
   },
   {
+    dynamic: true,
     phrase: "What Hogwarts house would you go to?",
     buttonList: [{text: "Gryffindor", tag: Tags.RED}, {text: "Hufflepuff", tag: Tags.YELLOW}, {text: "Ravenclaw", tag: Tags.BLUE}, {text: "Slytherin", tag: Tags.GREEN}]
   },
@@ -103,13 +102,14 @@ let allQuestions = [
     phrase: "Lime or lemon?",
     buttonList: buttonListFromTags([Tags.LIME, Tags.LEMON])
   }
-].sort(() => 0.5 - Math.random());
+].sort((a, b) => a.dynamic === b.dynamic ? 0.5 - Math.random() : (b.dynamic ? -1 : 1));
 
-const tagsOnCondition = (condition, tagsIfConfition, tagsIfNotCondition) => {
-  if (condition) {
-    return tagsIfConfition;
+const concatOnCondition = (arr, condition, tagsIfConfition, tagsIfNotCondition) => {
+  let elementsToAdd = condition ? tagsIfConfition : tagsIfNotCondition;
+  if (elementsToAdd) {
+    return arr.concat(elementsToAdd.filter(e => !arr.includes(e)));
   }
-  return tagsIfNotCondition ? tagsIfNotCondition : [];
+  return arr;
 };
 
 let allCocktails = cocktails.map((cocktail, index) => {
@@ -121,27 +121,27 @@ let allCocktails = cocktails.map((cocktail, index) => {
   cocktail.id = index;
   cocktail.tags = [];
   [Tags.WHISKEY, Tags.WHISKY, Tags.CACHAÇA, Tags.CHAMPAGNE, Tags.PROSECCO, Tags.TRIPLE_SEC, Tags.COINTREAU].forEach(tag => {
-    cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes(tag.toString()), [tag]));
+    cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes(tag.toString()), [tag]);
   });
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.search(/\bGIN\b/) !== -1, [Tags.GIN]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.search(/\bCOLA\b/) !== -1, [Tags.COLA, Tags.BLACK]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("LIME"), [Tags.LIME, Tags.GREEN]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("LEMON"), [Tags.LEMON, Tags.YELLOW]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("RUM"), [Tags.RUM]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("TEQUILA"), [Tags.TEQUILA, Tags.MEXICO]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("VODKA"), [Tags.VODKA]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("COGNAC"), [Tags.COGNAC]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("FRENCH"), [Tags.FRANCE]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("MOSCOW"), [Tags.RUSSIA]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("LONDON"), [Tags.UK]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(cocktail.ingredients.length <= 3, [Tags.FEW_INGREDIENTS], [Tags.MANY_INGREDIENTS]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("SALT"), [Tags.SALT]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("SUGAR"), [Tags.SUGAR]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("COFFEE") || tmpString.includes("ESPRESSO"), [Tags.COFFEE, Tags.BLACK]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("VANILLA"), [Tags.VANILLA]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.search(/\bRED\b/) !== -1 || tmpString.includes("BLOODY"), [Tags.RED]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("GREEN"), [Tags.GREEN]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("WHITE"), [Tags.WHITE]));
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.search(/\bGIN\b/) !== -1, [Tags.GIN]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.search(/\bCOLA\b/) !== -1, [Tags.COLA, Tags.BLACK]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("LIME"), [Tags.LIME, Tags.GREEN]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("LEMON"), [Tags.LEMON, Tags.YELLOW]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("RUM"), [Tags.RUM]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("TEQUILA"), [Tags.TEQUILA, Tags.MEXICO]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("VODKA"), [Tags.VODKA]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("COGNAC"), [Tags.COGNAC]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("FRENCH"), [Tags.FRANCE]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("MOSCOW"), [Tags.RUSSIA]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("LONDON"), [Tags.UK]);
+  cocktail.tags = concatOnCondition(cocktail.tags, cocktail.ingredients.length <= 3, [Tags.FEW_INGREDIENTS], [Tags.MANY_INGREDIENTS]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("SALT"), [Tags.SALT]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("SUGAR"), [Tags.SUGAR]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("COFFEE") || tmpString.includes("ESPRESSO"), [Tags.COFFEE, Tags.BLACK]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("VANILLA"), [Tags.VANILLA]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.search(/\bRED\b/) !== -1 || tmpString.includes("BLOODY"), [Tags.RED]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("GREEN"), [Tags.GREEN]);
+  cocktail.tags = concatOnCondition(cocktail.tags, tmpString.includes("WHITE"), [Tags.WHITE]);
   return cocktail;
 }).sort(() => 0.5 - Math.random());
 
@@ -150,7 +150,7 @@ const cocktailScore = (cocktail, tagList) => {
 };
 
 const questionScore = (question, tagList) => {
-  return question.buttonList.reduce((acc, cur) => acc + (tagList.includes(cur.tag) ? 1 : 0), 0);
+  return (question.buttonList.length >= 2 && question.buttonList.every(cur => tagList.includes(cur.tag))) ? Math.random() : -1;
 };
 
 export default {
@@ -194,6 +194,12 @@ export default {
       console.log("\n");
       console.log(tagsToConsider.join(", "));
       console.log("\n");
+      this.remainingQuestions = this.remainingQuestions.map(q => {
+        if (q.dynamic) {
+          q.buttonList = q.buttonList.filter(b => tagsToConsider.includes(b.tag));
+        }
+        return q;
+      });
       this.remainingQuestions.sort((a, b) => questionScore(b, tagsToConsider) - questionScore(a, tagsToConsider));
       if (this.questionsLeft === 0) {
         this.remainingCocktails.splice(this.numberOfcocktailsAtTheEnd);
