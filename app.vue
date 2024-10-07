@@ -1,7 +1,7 @@
 <template>
   <div>
     <Header />
-    <Question v-if="remainingCocktails.length !== cocktailsAtTheEnd" :phrase="remainingQuestions[0].phrase" :button-list="remainingQuestions[0].buttonList" @answer="handleAnswer"/>
+    <Question v-if="remainingCocktails.length !== numberOfcocktailsAtTheEnd" :phrase="remainingQuestions[0].phrase" :button-list="remainingQuestions[0].buttonList" @answer="handleAnswer"/>
     <div v-else class="cocktail-preview-list">
       <div v-for="c, i in remainingCocktails" :class="`cocktail-preview ${getColorClass(c)}`">
         <h2>{{ c.name }}</h2>
@@ -123,15 +123,17 @@ let allCocktails = cocktails.map((cocktail, index) => {
   [Tags.WHISKEY, Tags.WHISKY, Tags.CACHAÇA, Tags.CHAMPAGNE, Tags.PROSECCO, Tags.TRIPLE_SEC, Tags.COINTREAU].forEach(tag => {
     cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes(tag.toString()), [tag]));
   });
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.search(/\bGIN\b/) !== -1, [Tags.GIN, Tags.UK]));
+  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.search(/\bGIN\b/) !== -1, [Tags.GIN]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.search(/\bCOLA\b/) !== -1, [Tags.COLA, Tags.BLACK]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("LIME"), [Tags.LIME, Tags.GREEN]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("LEMON"), [Tags.LEMON, Tags.YELLOW]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("RUM"), [Tags.RUM]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("TEQUILA"), [Tags.TEQUILA, Tags.MEXICO]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("VODKA"), [Tags.VODKA, Tags.RUSSIA]));
-  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("COGNAC"), [Tags.COGNAC, Tags.FRANCE]));
+  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("VODKA"), [Tags.VODKA]));
+  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("COGNAC"), [Tags.COGNAC]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("FRENCH"), [Tags.FRANCE]));
+  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("MOSCOW"), [Tags.RUSSIA]));
+  cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("LONDON"), [Tags.UK]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(cocktail.ingredients.length <= 3, [Tags.FEW_INGREDIENTS], [Tags.MANY_INGREDIENTS]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("SALT"), [Tags.SALT]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("SUGAR"), [Tags.SUGAR]));
@@ -141,10 +143,14 @@ let allCocktails = cocktails.map((cocktail, index) => {
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("GREEN"), [Tags.GREEN]));
   cocktail.tags = cocktail.tags.concat(tagsOnCondition(tmpString.includes("WHITE"), [Tags.WHITE]));
   return cocktail;
-});
+}).sort(() => 0.5 - Math.random());
 
-const score = (cocktail, tagList) => {
+const cocktailScore = (cocktail, tagList) => {
   return cocktail.tags.reduce((acc, cur) => acc + (tagList.includes(cur) ? 1 : 0), 0);
+};
+
+const questionScore = (question, tagList) => {
+  return question.buttonList.reduce((acc, cur) => acc + (tagList.includes(cur.tag) ? 1 : 0), 0);
 };
 
 export default {
@@ -160,31 +166,42 @@ export default {
       remainingCocktails: allCocktails,
       currentTagList: [],
       questionsLeft: 0,
-      cocktailsAtTheEnd: 3
+      numberOfcocktailsAtTheEnd: 3,
+      numberOfcocktailsToConsiderForNextQuestion: 5
     }
   },
   methods: {
     handleAnswer(tag) {
+      let tagsToConsider;
+
       this.questionsLeft--;
       this.remainingQuestions.splice(0, 1);
       if (!tag) {
         return;
       }
       this.currentTagList.push(tag);
-      this.remainingCocktails.sort((a, b) => score(b, this.currentTagList) - score(a, this.currentTagList));
+      this.remainingCocktails.sort((a, b) => cocktailScore(b, this.currentTagList) - cocktailScore(a, this.currentTagList));
+      tagsToConsider = this.remainingCocktails.slice(0, this.numberOfcocktailsToConsiderForNextQuestion).reduce((acc, cur) => {
+        let tmpArray = [];
+        cur.tags.forEach(t => {
+          if (!acc.includes(t)) {
+            tmpArray.push(t);
+          }
+        });
+        return acc.concat(tmpArray);
+      }, []);
       this.printRemainingCocktails();
+      console.log("\n");
+      console.log(tagsToConsider.join(", "));
+      console.log("\n");
+      this.remainingQuestions.sort((a, b) => questionScore(b, tagsToConsider) - questionScore(a, tagsToConsider));
       if (this.questionsLeft === 0) {
-        this.remainingCocktails.splice(this.cocktailsAtTheEnd);
+        this.remainingCocktails.splice(this.numberOfcocktailsAtTheEnd);
         [this.remainingCocktails[0], this.remainingCocktails[1]] = [this.remainingCocktails[1], this.remainingCocktails[0]];
       }
     },
     printRemainingCocktails() {
-      this.remainingCocktails.forEach((c, i) => {
-        if (i < 5) {
-          console.log(c.name, c.tags.join(", "), "\n")
-        }
-      });
-      console.log("\n");
+      this.remainingCocktails.slice(0, this.numberOfcocktailsToConsiderForNextQuestion).forEach(c => console.log(c.name, c.tags.join(", "), "\n"));
     },
     getColorClass(cocktail) {
       if (cocktail.tags.includes(Tags.BLACK)) {
