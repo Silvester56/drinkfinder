@@ -3,7 +3,7 @@
     <Header />
     <Question v-if="remainingCocktails.length !== numberOfcocktailsAtTheEnd" :phrase="remainingQuestions[0].phrase" :button-list="remainingQuestions[0].buttonList" @answer="handleAnswer"/>
     <div v-else class="cocktail-preview-list">
-      <div v-for="c, i in remainingCocktails" :class="`cocktail-preview ${getColorClass(c)}`">
+      <div v-for="c, i in remainingCocktails" :class="`cocktail-preview background-${backgroundClass[i]}`">
         <h2>{{ c.name }}</h2>
       </div>
     </div>
@@ -167,7 +167,8 @@ export default {
       currentTagList: [],
       questionsLeft: 0,
       numberOfcocktailsAtTheEnd: 3,
-      numberOfcocktailsToConsiderForNextQuestion: 5
+      numberOfcocktailsToConsiderForNextQuestion: 5,
+      backgroundClass: Array.from(Array(8)).map((_, i) => i + 1).sort(() => 0.5 - Math.random())
     }
   },
   methods: {
@@ -209,7 +210,7 @@ export default {
     printRemainingCocktails() {
       this.remainingCocktails.slice(0, this.numberOfcocktailsToConsiderForNextQuestion).forEach(c => console.log(c.name, c.tags.join(", "), "\n"));
     },
-    getColorClass(cocktail) {
+    getClass(cocktail) {
       if (cocktail.tags.includes(Tags.BLACK)) {
         return "licorice";
       }
@@ -239,18 +240,6 @@ export default {
 
 
 body {
-  --tomato: #f55d3e;
-  --lavender-web: #e5e5f7;
-  --emerald: #00dc82;
-  --jonquil: #f7cb15;
-  --licorice: #1e120b;
-  --air-force-blue: #537d8d;
-  --inverted-tomato: #0aa2c1;
-  --inverted-lavender-web: #1a1a08;
-  --inverted-emerald: #ff237d;
-  --inverted-jonquil: #0834ea;
-  --inverted-air-force-blue: #ac8272;
-  --inverted-licorice: #e1edf4;
   margin: 0;
   padding: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -272,23 +261,27 @@ body {
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  background-color: #000000;
+  background-size: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+  transition: all .5s;
 }
 
 .cocktail-preview-list .cocktail-preview:hover {
   color: #ffffff;
+  background-size: 110%;
 }
 
-.cocktail-preview-list .cocktail-preview.tomato { background-color: var(--tomato) }
-.cocktail-preview-list .cocktail-preview.lavender-web { background-color: var(--lavender-web) }
-.cocktail-preview-list .cocktail-preview.emerald { background-color: var(--emerald) }
-.cocktail-preview-list .cocktail-preview.jonquil { background-color: var(--jonquil) }
-.cocktail-preview-list .cocktail-preview.air-force-blue { background-color: var(--air-force-blue) }
-.cocktail-preview-list .cocktail-preview.licorice { background-color: var(--licorice); color: #ffffff; }
-.cocktail-preview-list .cocktail-preview.tomato:hover { background-color: var(--inverted-tomato) }
-.cocktail-preview-list .cocktail-preview.lavender-web:hover { background-color: var(--inverted-lavender-web) }
-.cocktail-preview-list .cocktail-preview.emerald:hover { background-color: var(--inverted-emerald) }
-.cocktail-preview-list .cocktail-preview.jonquil:hover { background-color: var(--inverted-jonquil) }
-.cocktail-preview-list .cocktail-preview.air-force-blue:hover { background-color: var(--inverted-air-force-blue) }
-.cocktail-preview-list .cocktail-preview.licorice:hover { background-color: var(--inverted-licorice); color: #000000 }
+.cocktail-preview-list .cocktail-preview.background-1 {background-image: url("./assets/1.jpg")}
+.cocktail-preview-list .cocktail-preview.background-2 {background-image: url("./assets/2.jpg")}
+.cocktail-preview-list .cocktail-preview.background-3 {background-image: url("./assets/3.jpg")}
+.cocktail-preview-list .cocktail-preview.background-4 {background-image: url("./assets/4.jpg")}
+.cocktail-preview-list .cocktail-preview.background-5 {background-image: url("./assets/5.jpg")}
+.cocktail-preview-list .cocktail-preview.background-6 {background-image: url("./assets/6.jpg")}
+.cocktail-preview-list .cocktail-preview.background-7 {background-image: url("./assets/7.jpg")}
+.cocktail-preview-list .cocktail-preview.background-8 {background-image: url("./assets/8.jpg")}
 
 </style>
